@@ -1,0 +1,55 @@
+from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import classification_report
+from keras.models import Sequential
+from keras.layers.core import Dense
+from keras.optimizers import SGD
+import numpy as np
+import matplotlib.pyplot as plt
+import argparse
+import tensorflow as tf
+
+ap = argparse.ArgumentParser()
+ap.add_argument("-o","--output", required=True, help="path to the output loss/accuracy plot")
+args = vars(ap.parse_args())
+
+print("[INFO] loading Cifar10 (full) dataset...")
+((trainX, trainY), (testX, testY)) = tf.keras.datasets.cifar10.load_data()
+
+trainX = trainX.astype("float")/255.0
+testX  = testX.astype("float")/255.0
+trainX = trainX.reshape((trainX.shape[0], 3072))
+testX  = testX.reshape((testX.shape[0], 3072))
+
+lb = LabelBinarizer()
+trainY = lb.fit_transform(trainY)
+testY  = lb.transform(testY)
+
+labelNames = ["airplane", "automobile", "bird", "cat", "deer", "dog", "frog", "horse", "ship", "truck"]
+
+# define the 3072-1024-512-10 architecture using Keras
+model = Sequential()
+model.add(Dense(1024, input_shape=(3072,), activation="relu"))
+model.add(Dense(512, activation="relu"))
+model.add(Dense(10, activation="softmax"))
+model.summary()
+
+print("[INFO] training network...")
+model.compile(optimizer=SGD(0.01), loss="categorical_crossentropy", metrics=["accuracy"])
+H = model.fit(trainX, trainY, batch_size=32, epochs=100, validation_data=(testX, testY))
+
+print("[INFO] evaluating network...")
+predictions = model.predict(testX, batch_size=32)
+print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1), target_names=labelNames))
+
+
+plt.style.use("ggplot")
+plt.figure()
+plt.plot(np.arange(0, 100), H.history["loss"], label="train_loss")
+plt.plot(np.arange(0, 100), H.history["val_loss"], label="val_loss")
+plt.plot(np.arange(0, 100), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(0, 100), H.history["val_accuracy"], label="val_acc")
+plt.title("Training Loss and Accuracy")
+plt.xlabel("Epoch #")
+plt.ylabel("Loss/Accuracy")
+plt.legend()
+plt.savefig(args["output"])
