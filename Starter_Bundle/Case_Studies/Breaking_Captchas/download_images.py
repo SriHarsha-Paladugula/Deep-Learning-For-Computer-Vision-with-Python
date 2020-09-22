@@ -17,7 +17,7 @@ for i in range(0, args["num_images"]):
         r = requests.get(url, timeout = 60)
 
         # save the image to disk
-        p = os.path.join(args["output"], "{}.jpg".format(str(total).zfill(5)))
+        p = os.path.join(args["output"], "image_{}".format(str(total).zfill(5)))
         f = open(p, "wb")
         f.write(r.content)
         f.close()
@@ -29,5 +29,5 @@ for i in range(0, args["num_images"]):
     except:
         print("[INFO] error downloading image...")
 
-# insert a small sleep to be courteous to the server
-time.sleep(0.1)        
+    # insert a small sleep to be courteous to the server
+    time.sleep(0.1)        
