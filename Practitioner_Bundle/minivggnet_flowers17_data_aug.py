@@ -21,7 +21,6 @@ args = vars(ap.parse_args())
 # grab the list of images that we’ll be describing, then extract the class label names from the image paths
 print("[INFO] loading images...")
 imagePaths = list(paths.list_images(args["dataset"]))
-print(imagePaths)
 classNames = [pt.split(os.path.sep)[-2] for pt in imagePaths]
 classNames = [str(x) for x in np.unique(classNames)]
 
@@ -31,7 +30,7 @@ iap = ImageToArrayPreprocessor()
 
 #load the dataset from disk then scale the raw pixel intensities to the range [0, 1]
 sdl = SimpleDatasetLoader(preprocessors=[aap, iap])
-(data, labels) = sdl.load(imagePaths, verbose=500)
+(data, labels) = sdl.load(args["dataset"], verbose=500)
 data = data.astype("float") / 255.0
 
 # partition the data into training and testing splits using 75% of
