@@ -36,8 +36,6 @@ trainX, testX, trainY, testY = train_test_split(data, labels, test_size=0.25, ra
 trainY = LabelBinarizer().fit_transform(trainY)
 testY  = LabelBinarizer().fit_transform(testY)
 
-# commenting the code for converting labels to one hot vectors since using sparse categorical crossentropy 
-# loss for loss calculation
 
 # initialize the optimizer and model
 print("[INFO] compiling the model ....")
@@ -47,11 +45,11 @@ model.compile(optimizer=opt, metrics=['accuracy'], loss='categorical_crossentrop
 
 # Training the Network
 print("[INFO] training network...")
-H = model.fit(trainX, trainY, batch_size=32, epochs=10, validation_data=(testX, testY), shuffle=True, verbose=1)
+H = model.fit(trainX, trainY, batch_size=32, epochs=100, validation_data=(testX, testY), shuffle=True, verbose=1)
 
 # Evaluating the network
 predictions = model.predict(testX)
-print(classification_report(testY, predictions))
+print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1)))
 
 # plot the training loss and accuracy
 plt.style.use('ggplot')
