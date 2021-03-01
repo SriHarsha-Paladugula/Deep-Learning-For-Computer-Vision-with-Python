@@ -17,9 +17,9 @@ args = vars(ap.parse_args())
 
 
 # load the dataset from disk then scale the raw pixel intensities to the range [0, 1]
-aug = Preprocess(64,64)
-sdl = DatasetLoader(preprocessors = [aug.image_to_array, aug.aspect_aware_resize])
-(data, labels) = sdl.load(args['dataset'])
+pre = Preprocess(64,64)
+sdl = DatasetLoader(preprocessors = [pre.image_to_array, pre.aspect_aware_resize])
+(data, labels) = sdl.load(args['dataset'], verbose=500)
 
 
 # to get the total number of classes being labels in the dataset
@@ -45,7 +45,7 @@ model.compile(optimizer=opt, metrics=['accuracy'], loss='categorical_crossentrop
 
 # Training the Network
 print("[INFO] training network...")
-H = model.fit(trainX, trainY, batch_size=32, epochs=100, validation_data=(testX, testY), shuffle=True, verbose=1)
+H = model.fit(trainX, trainY, batch_size=32, epochs=10, validation_data=(testX, testY), verbose=1)
 
 # Evaluating the network
 predictions = model.predict(testX)
@@ -54,10 +54,10 @@ print(classification_report(testY.argmax(axis=1), predictions.argmax(axis=1)))
 # plot the training loss and accuracy
 plt.style.use('ggplot')
 plt.figure()
-plt.plot(np.arange(0,100), H.history['loss'], label = "train_loss")
-plt.plot(np.arange(0,100), H.history['val_loss'], label="val_loss")
-plt.plot(np.arange(0,100), H.history['accuracy'], label="train_accuracy")
-plt.plot(np.arange(0,100), H.history['val_accuracy'], label="val_accuracy")
+plt.plot(np.arange(0,10), H.history['loss'], label = "train_loss")
+plt.plot(np.arange(0,10), H.history['val_loss'], label="val_loss")
+plt.plot(np.arange(0,10), H.history['accuracy'], label="train_accuracy")
+plt.plot(np.arange(0,10), H.history['val_accuracy'], label="val_accuracy")
 plt.title("Training Loss and Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("loss/Accuracy")
