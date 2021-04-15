@@ -5,10 +5,14 @@ from sklearn.feature_extraction.image import extract_patches_2d
 import numpy as np
 
 class Preprocess:
-    def __init__(self, width, height, inter = cv2.INTER_AREA):
-        self.width  = width
+    def __init__(self, width, height, inter = cv2.INTER_AREA, rMean=None, gMean=None, bMean=None, horiz=True):
+        self.width = width
         self.height = height
-        self.inter  = inter
+        self.inter = inter
+        self.rMean = rMean
+        self.gMean = gMean
+        self.bMean = bMean
+        self.horiz = horiz
 
     def image_to_array(self, image, dataFormat=None):
         # apply the Keras utility function that correctly rearranges the dimensions of the image
@@ -46,19 +50,15 @@ class Preprocess:
 
         return cv2.resize(image, (self.width,self.height), interpolation=self.inter)  
 
-    def Mean_preprocessor(self, image, rMean, gMean, bMean):
-        # store the Red, Green, and Blue channel averages across a training set
-        self.rMean = rMean
-        self.gMean = gMean
-        self.bMean = bMean          
+    def Mean_preprocessor(self, image):
         
         # split the image into its respective Red, Green, and Blue channels
         (B, G, R) = cv2.split(image.astype("float32"))
 
         # subtract the means for each channel
-        R -= self.rMean
-        G -= self.gMean
-        B -= self.bMean
+        R = R - self.rMean
+        G = G - self.gMean
+        B = B - self.bMean
 
         # merge the channels back together and return the image
         return cv2.merge([B, G, R])
@@ -66,7 +66,7 @@ class Preprocess:
     def Patch_preprocessor(self, image):
         return extract_patches_2d(image, (self.height, self.width), max_patches=1)[0]
 
-    def Crop_preprocessor(self, image, horiz=True):
+    def Crop_preprocessor(self, image):
         # initialize the list of crops
         crops = []
 
